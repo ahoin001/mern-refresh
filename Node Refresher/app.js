@@ -1,15 +1,20 @@
+const http = require('http');
 
-const fs = require('fs');
+// create server gets two arguments from server after making request 
+const server = http.createServer((req, res) => {
+    
+    console.log(`INCOMING REQUEST`)
+    
+    // Returns type of request method (Get, Post, Put etc)
+    console.log(`Request method: ${req.method}`); 
 
-const userName = 'Alex';
+    // Returns URL requested
+    console.log(`Request URL: ${req.url}`);             
 
-// create a file with name and data and a callback function that gets an error object 
-fs.writeFile('user-data.txt',`Name: ${userName}`, (errorObjectThatCanBeNamedAnything) => {
+    // This is sent back to wherever request was made from
+    res.end('<h1>Success</h1>')
+});
 
-    if (errorObjectThatCanBeNamedAnything) {
-        console.log('++++++===================================++++'+errorObjectThatCanBeNamedAnything+'++++++===================================++++')
-        return;
-    }
-    console.log('WROTE THE FILE')
-}
-)
+// listen is event listener for requests
+// opens local server on machine 
+server.listen(5000)
