@@ -1,50 +1,55 @@
-const http = require('http');
+// returns a function
+const express = require('express')
 
-// create server gets two arguments from server after making request 
-const server = http.createServer((req, res) => {
+// express function returns app object full of functions and features
+const app = express()
 
-    console.log(`INCOMING REQUEST`)
+// MiddleWare are functions called on incoming requests to do things 
+// with requests and manipulate responses to send back, only 1 response allowed each.
 
-    // Returns type of request method (Get, Post, Put etc)
-    console.log(`Request method: ${req.method}`);
+app.use((req, res, next) => {
 
-    // Returns URL requested
-    console.log(`Request URL: ${req.url}`);
+    let body = '';
 
-    if (req.method === 'POST') {
+    // Starts once finished parsing data
+    req.on('end', () => {
 
-        let body = '';
+        // To see what is returned in req body ( name=alex )
+        console.log(`Req.body : ${body}`);
 
-        // Starts once finished parsing data
-        req.on('end', () => {
+        // get name from body
+        const userName = body.split('=')[1]
 
-            // To see what is returned in req body ( name=alex )
-            console.log(`Req.body : ${body}`);
+        if (userName) {
 
-            // get name from body
-            const userName = body.split('=')[1]
+            req.body = { name: userName };
 
-            res.end(`<h1> ${userName}</h1>`)
-        })
+        }
 
-        // Starts when data is sent to data, callback automatically returns data of data recieved
-        req.on('data', (chunk) => {
-            body += chunk
-        })
+        // move to next middleware after parsing data (creating req.body.name)
+        next();
+        
+        // console.log('Server not respondig without next going to next middleware that has response')
 
-    } else {
+    });
 
-        // tells browser how to interpret our response
-        res.setHeader('Content-Type', 'text/html')
-
-        // This is sent back to wherever request was made from
-        res.end(`<form method="POST"> <input type=text name="username"> </input> <button>Create User</button> </form>`)
-
-    }
-
+    // Starts when data is sent to data, callback automatically returns data of data recieved
+    req.on('data', (chunk) => {
+        body += chunk
+    });
 
 });
 
-// listen is event listener for requests
-// opens local server on machine 
-server.listen(5000)
+app.use((req, res, next) => {
+
+    // if we have parsed req.body
+    if (req.body) {
+        return res.send(`<h1> ${req.body.name} </h1>`);
+    }
+
+    res.send(`<form method="POST"> <input type="text" name="username"> <button>Create User</button></form>`)
+
+})
+
+
+app.listen(5000)
