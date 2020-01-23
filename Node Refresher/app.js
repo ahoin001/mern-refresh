@@ -1,55 +1,34 @@
 // returns a function
 const express = require('express')
-
 // express function returns app object full of functions and features
 const app = express()
 
-// MiddleWare are functions called on incoming requests to do things 
-// with requests and manipulate responses to send back, only 1 response allowed each.
+// Provides middleware to parse request bodies ( we no longer need data chunks function)
+const bodyParser = require('body-parser')
 
-app.use((req, res, next) => {
+/*
+ MiddleWare are functions called on incoming requests to do things 
+ with requests and manipulate responses to send back, only 1 response allowed each.
+*/
 
-    let body = '';
+// bodyparser parses request bodies and extracts data from req.body, in this case urlEncoded Data, but could also be JSON
+// app.use makes this run no matter what or where request is made
+app.use(bodyParser.urlencoded({ extended: false }))
 
-    // Starts once finished parsing data
-    req.on('end', () => {
+// app.post runs on post requests at '/user' of our server path. Must be exact match
+app.post('/user', (req, res, next) => {
 
-        // To see what is returned in req body ( name=alex )
-        console.log(`Req.body : ${body}`);
-
-        // get name from body
-        const userName = body.split('=')[1]
-
-        if (userName) {
-
-            req.body = { name: userName };
-
-        }
-
-        // move to next middleware after parsing data (creating req.body.name)
-        next();
-        
-        // console.log('Server not respondig without next going to next middleware that has response')
-
-    });
-
-    // Starts when data is sent to data, callback automatically returns data of data recieved
-    req.on('data', (chunk) => {
-        body += chunk
-    });
+    // req.body.username is available because of bodyParser extracting form data
+    res.send(`<h1> Hello ${req.body.username} </h1>`);
 
 });
 
-app.use((req, res, next) => {
+// app.get runs on get requests at ' / ' of our server path
+app.get('/', (req, res, next) => {
 
-    // if we have parsed req.body
-    if (req.body) {
-        return res.send(`<h1> ${req.body.name} </h1>`);
-    }
-
-    res.send(`<form method="POST"> <input type="text" name="username"> <button>Create User</button></form>`)
+    // method is post, form data will be post request to where action attribute directs , '/user'. We handle this above 
+    res.send(`<form action= "/user" method="POST"> <input type="text" name="username"> <button>Create User</button> </form>`)
 
 })
-
 
 app.listen(5000)
