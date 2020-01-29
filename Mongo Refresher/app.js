@@ -1,16 +1,16 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 
-// get access to our mongo controllers
-const mongoController = require('./mongo')
+const mongooseController = require('./mongoose')
+
 
 app = express();
 
 app.use(bodyParser.json());
 
-app.get('/products', mongoController.getProducts);
+app.get('/products', mongooseController.getProducts);
 
-app.post('/products', mongoController.createProduct);
+app.post('/products', mongooseController.createProduct);
 
 app.listen(3000, () => {
     console.log('App listening on port 3000!');
